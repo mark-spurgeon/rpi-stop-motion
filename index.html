@@ -3,14 +3,37 @@
   <head>
     <meta charset="UTF-8">
     <title>Hello World!</title>
+    <link rel="stylesheet" href="css/master.css">
   </head>
   <body>
-    <h1>Hello World!</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    We are using Node.js <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
+    <!-- UI -->
 
+    <div class="MainLayout">
+      <div class="ImageLayout">
+        k
+        <!--<img class="PreviousImage" src="greece.png"></img>
+        <img class="NextImage" src="greece.png"></img> preview image then official image transferred as a previous image -->
+      </div>
+      <div class="ButtonsLayout">
+        <div class="Button">
+          <button type="button" name="button1">
+            Preview
+          </button>
+        </div>
+        <div class="Button">
+          <button type="button" name="button1">
+            Compare/Not Compare
+          </button>
+        </div>
+        <div class="Button">
+          <button type="button" name="button1">
+            Take image
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENDUI -->
     <script>
       // You can also require other files to run in this process
       require('./renderer.js')
