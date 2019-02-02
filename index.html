@@ -10,23 +10,30 @@
 
     <div class="MainLayout">
       <div class="ImageLayout">
-        k
-        <!--<img class="PreviousImage" src="greece.png"></img>
-        <img class="NextImage" src="greece.png"></img> preview image then official image transferred as a previous image -->
+        <div class="Image Underlay" id="PreviousImageLayout">
+          <img id="PreviousImage" src="images/PreviousPicture.png"></img>
+        </div>
+        <div class="Image" id="NextImageLayout" >
+          <img class="NextImage" id="NextImage" src="images/NextPicture.png"></img>
+        </div> <!-- preview image then official image transferred as a previous image -->
+        <div class="Image Passepartout" id="NextImageLayout" >
+          <!--<img src="images/mask-cinemascope.jpg"></img>-->
+        </div>
+        <p id="label-model" class="label">No model found</p>
       </div>
       <div class="ButtonsLayout">
         <div class="Button">
-          <button type="button" name="button1">
+          <button type="button" id="button-preview" onclick="getModel()" >
             Preview
           </button>
         </div>
         <div class="Button">
-          <button type="button" name="button1">
-            Compare/Not Compare
+          <button type="button" id="button-compare" name="button1">
+            Previous Image
           </button>
         </div>
         <div class="Button">
-          <button type="button" name="button1">
+          <button type="button" id="button-capture" name="button1">
             Take image
           </button>
         </div>

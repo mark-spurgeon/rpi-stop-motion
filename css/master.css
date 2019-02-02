@@ -16,17 +16,46 @@ body {
 }
 .ImageLayout {
   display: block;
+  flex-direction: column;
   position: relative;
   flex-grow: 1;
+  flex-basis: 672px;
+  max-width: 672px;
   overflow: hidden;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  background-image: url('../greece.png');
 }
-.ImageLayout img {
+.Image {
   position: absolute;
+  top:26px;
+  height:428px;
+  width: 100%;;
+  z-index: 90;
+  overflow: hidden;
 }
+.Image img {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+#PreviousImageLayout {
+  display: none;
+}
+.Image.Underlay {
+  /*filter:grayscale(1);*/
+  opacity: .5
+}
+.Image.Overlay {
+  opacity: .6
+}
+.Image.Passepartout {
+  opacity: .97;
+  background-position: center;
+  background-image: url('../images/mask-cinemascope.png')
+}
+
 .ButtonsLayout {
   flex-basis:128px;
   display: flex;
@@ -60,9 +89,29 @@ button {
   outline:none;
   color: white;
   font-weight: bold;
-  font-size: 18px
+  font-size: 18px;
+  transition:all .2s;
 }
 button:active {
   background-image: linear-gradient(rgb(75,75,95), rgb(90,90,110));
   box-shadow: inset 0px 0px 24px 12px rgba(0,0,0,0.05)
+}
+button.working {
+  background:linear-gradient(rgb(95,95,75), rgb(110,110,90));
+  color:black;
+}
+
+.label {
+  position: absolute;
+  left:0px;
+  z-index: 99;
+  font-size: 11px;
+  margin-left:6px;
+  margin-top:6px;
+  padding:3px;
+  background: rgb(60,60,70);
+  color:white;
+  font-family: Helvetica, sans-serif;
+  display: inline;
+  width: auto;
 }

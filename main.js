@@ -6,6 +6,8 @@ const {app, BrowserWindow} = require('electron')
 let mainWindow
 
 function createWindow () {
+
+  console.log('hello from main');
   // Create the browser window.
   mainWindow = new BrowserWindow({fullscreen:true})
 
