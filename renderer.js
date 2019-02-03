@@ -18,7 +18,7 @@ var configuration = {
   'outputPath':'',
   'passepartout':'cinemascope',
   'brand':'Nikon',
-  'outputExtension':'nef'
+  'outputExtension':'jpg'
 }
 var tempPath = "/temp/";
 var model = null;
@@ -69,12 +69,18 @@ Component('button-preview').addEventListener('click', (e) => {
   capturePreview(model, port, tempPath).then((resp)=> {
     logger.log(resp);
     if (resp.status==='ok') {
+
+      const previewPath = path.join(tempPath, 'preview/')
       /*
         Get Latest Count
       */
-      var count = getCount(configuration.outputPath);
-      const nextImageName = count+"-Preview-"+pad(counter.toString(),4)+".jpg"
+      var count = getCount(configuration.outputPath)+1;
+      const previousImageName = pad(count,4)+"-Preview-"+counter.toString()+".jpg";
+      if (fs.existsSync(path.join(previewPath, previousImageName))) {
+        fs.unlinkSync(path.join(previewPath, previousImageName))
+      }
       counter+=1;
+      const nextImageName = pad(count,4)+"-Preview-"+counter.toString()+".jpg";
       /*
         Set new images
       */
@@ -83,7 +89,6 @@ Component('button-preview').addEventListener('click', (e) => {
           if (err) throw err;
         })
       }*/
-      const previewPath = path.join(tempPath, 'preview/')
       if (!fs.existsSync(previewPath)){
         fs.mkdirSync(previewPath)
       }
@@ -108,26 +113,11 @@ Component('button-capture').addEventListener('click', (e) => {
   var number = largestNumber+1;
   var fileName = pad(number,4)+"."+configuration.outputExtension;
   captureImage(model, port, configuration.outputPath, fileName).then((resp) => {
-    logger.log(resp);
-    const outputFile = path.join(configuration.outputPath, pad(number,4)+"."+configuration.outputExtension);
-    const outputJPEG = path.join(tempPath, pad(number,4)+".jpg");
+    const outputFile = path.join(configuration.outputPath, fileName);
     logger.log(outputFile);
-    /*if (fs.existsSync(configuration.outputPath)) {
-      logger.log('Copying output file')
-      fs.copyFile(path.join(tempPath, resp.fileName+"."+configuration.outputExtension), outputFile, (err) => {
-        if (err) throw err;
-      });
-      fs.rename(path.join(tempPath, resp.fileName+".jpg"), outputJPEG, (err) => {
-        if (err) throw err;
-      });
-      fs.unlinkSync(path.join(tempPath, resp.fileName+"."+configuration.outputExtension))
+    Component('NextImage').src=outputFile;
+    Component('PreviousImage').src=outputFile;
 
-      Component('PreviousImage').src = outputJPEG;
-      Component('NextImage').src = outputJPEG;
-
-    } else {
-      logger.log('error: could not fond output path')
-    }*/
     Component('button-capture').innerHTML='Take Picture'
     Component('button-capture').className=''
   })
@@ -200,7 +190,7 @@ function capturePreview(model, port, filepath) {
 }
 function captureImage(model, port, filepath, filename) {
   return new Promise(function(resolve, reject) {
-    const detect = spawn('gphoto2', ['--port', port,'--capture-image-and-download', '--force-overwrite', '--filename', filename], {cwd: filepath});
+    const detect = spawn('gphoto2', ['--port', port,'--capture-image-and-download', '--force-overwrite','--filename', filename], {cwd: filepath});
     detect.stdout.on('data', (data) => {
 
       var d = data.toString().split('\n');
@@ -214,9 +204,9 @@ function captureImage(model, port, filepath, filename) {
       }
       if (fileName) {
         setTimeout( () => {
-          resolve({status:'ok', filePath:filepath, fileName:fileName.split('.')[0].trim()});
+          resolve({status:'ok', filePath:filepath, fileName:filename});
         },
-        3000)
+        4500)
 
       }
 
