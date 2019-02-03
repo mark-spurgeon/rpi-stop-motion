@@ -9,7 +9,7 @@ function createWindow () {
 
   console.log('hello from main');
   // Create the browser window.
-  mainWindow = new BrowserWindow({fullscreen:true})
+  mainWindow = new BrowserWindow({fullscreen:true, width:800, height:480})
 
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')

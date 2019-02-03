@@ -1,7 +1,6 @@
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
-const log = require('electron-log');
 const { remote } = require('electron')
 const logger = require('electron').remote.require('./logger');
 const { spawn } = require('child_process');
@@ -105,15 +104,15 @@ Component('button-capture').addEventListener('click', (e) => {
   Component('button-capture').innerHTML='...';
   Component('button-capture').className='working';
   e.preventDefault();
-  captureImage(model, port, tempPath).then((resp) => {
+  var largestNumber = getCount(configuration.outputPath);
+  var number = largestNumber+1;
+  var fileName = pad(number,4)+"."+configuration.outputExtension;
+  captureImage(model, port, configuration.outputPath, fileName).then((resp) => {
     logger.log(resp);
-    var largestNumber = getCount(configuration.outputPath);
-    logger.log(largestNumber);
-    var number = largestNumber+1;
     const outputFile = path.join(configuration.outputPath, pad(number,4)+"."+configuration.outputExtension);
     const outputJPEG = path.join(tempPath, pad(number,4)+".jpg");
     logger.log(outputFile);
-    if (fs.existsSync(configuration.outputPath)) {
+    /*if (fs.existsSync(configuration.outputPath)) {
       logger.log('Copying output file')
       fs.copyFile(path.join(tempPath, resp.fileName+"."+configuration.outputExtension), outputFile, (err) => {
         if (err) throw err;
@@ -128,7 +127,7 @@ Component('button-capture').addEventListener('click', (e) => {
 
     } else {
       logger.log('error: could not fond output path')
-    }
+    }*/
     Component('button-capture').innerHTML='Take Picture'
     Component('button-capture').className=''
   })
@@ -199,9 +198,9 @@ function capturePreview(model, port, filepath) {
     });
   });
 }
-function captureImage(model, port, filepath) {
+function captureImage(model, port, filepath, filename) {
   return new Promise(function(resolve, reject) {
-    const detect = spawn('gphoto2', ['--port', port,'--capture-image-and-download', '--force-overwrite'], {cwd: filepath});
+    const detect = spawn('gphoto2', ['--port', port,'--capture-image-and-download', '--force-overwrite', '--filename', filename], {cwd: filepath});
     detect.stdout.on('data', (data) => {
 
       var d = data.toString().split('\n');
