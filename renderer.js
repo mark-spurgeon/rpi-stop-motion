@@ -63,24 +63,27 @@ window.addEventListener('load', (e) => {
 })
 
 Component('button-preview').addEventListener('click', (e) => {
-  Component('button-preview').innerHTML='...';
+  Component('button-preview').innerHTML='🖖';
   Component('button-preview').className='working';
 
-  capturePreview(model, port, tempPath).then((resp)=> {
+  const previewPath = path.join(tempPath, 'preview/')
+  if (!fs.existsSync(previewPath)){
+    fs.mkdirSync(previewPath)
+  }
+  /*
+    Get Latest Count
+  */
+  var count = getCount(configuration.outputPath)+1;
+  const previousImageName = pad(count,4)+"-Preview-"+counter.toString()+".jpg";
+  if (fs.existsSync(path.join(previewPath, previousImageName))) {
+    fs.unlinkSync(path.join(previewPath, previousImageName))
+  }
+  counter+=1;
+  const nextImageName = pad(count,4)+"-Preview-"+counter.toString()+".jpg";
+
+  capturePreview(model, port, previewPath, nextImageName).then((resp)=> {
     logger.log(resp);
     if (resp.status==='ok') {
-
-      const previewPath = path.join(tempPath, 'preview/')
-      /*
-        Get Latest Count
-      */
-      var count = getCount(configuration.outputPath)+1;
-      const previousImageName = pad(count,4)+"-Preview-"+counter.toString()+".jpg";
-      if (fs.existsSync(path.join(previewPath, previousImageName))) {
-        fs.unlinkSync(path.join(previewPath, previousImageName))
-      }
-      counter+=1;
-      const nextImageName = pad(count,4)+"-Preview-"+counter.toString()+".jpg";
       /*
         Set new images
       */
@@ -89,15 +92,12 @@ Component('button-preview').addEventListener('click', (e) => {
           if (err) throw err;
         })
       }*/
-      if (!fs.existsSync(previewPath)){
-        fs.mkdirSync(previewPath)
-      }
-      fs.rename(path.join(resp.filePath, resp.fileName), path.join(previewPath, nextImageName), (err) => {
+      /*fs.rename(path.join(resp.filePath, resp.fileName), path.join(previewPath, nextImageName), (err) => {
         if (err) throw err;
-      })
+      })*/
 
       //Component('PreviousImage').src = path.join(resp.filePath, previousImageName);
-      Component('NextImage').src =path.join(previewPath, nextImageName);
+      Component('NextImage').src =path.join(previewPath, 'thumb_'+nextImageName);
 
     }
     Component('button-preview').innerHTML='Preview';
@@ -106,7 +106,7 @@ Component('button-preview').addEventListener('click', (e) => {
 })
 
 Component('button-capture').addEventListener('click', (e) => {
-  Component('button-capture').innerHTML='...';
+  Component('button-capture').innerHTML='🤞';
   Component('button-capture').className='working';
   e.preventDefault();
   var largestNumber = getCount(configuration.outputPath);
@@ -174,22 +174,25 @@ function getModel(configuration, filepath) {
     });
   });
 }
-function capturePreview(model, port, filepath) {
+function capturePreview(model, port, filepath, filename) {
   return new Promise(function(resolve, reject) {
-    const detect = spawn('gphoto2', ['--port', port,'--capture-preview'], {cwd: filepath});
+    var returnCode = {status:'none'}
+    const detect = spawn('gphoto2', ['--port', port,'--capture-preview', '--force-overwrite', '--filename', filename], {cwd: filepath});
     detect.stdout.on('data', (data) => {
-      resolve({status:'ok', filePath:filepath, fileName:'capture_preview.jpg'});
+      returnCode = {status:'ok', filePath:filepath, fileName:filename};
     });
     detect.stderr.on('data', (error) => {
       logger.log(`error: ${error}`);
     });
     detect.on('close', (code) => {
+      resolve(returnCode);
       //logger.log(`child process exited with code ${code}`);
     });
   });
 }
 function captureImage(model, port, filepath, filename) {
   return new Promise(function(resolve, reject) {
+    var returnCode = {status:'none'};
     const detect = spawn('gphoto2', ['--port', port,'--capture-image-and-download', '--force-overwrite','--filename', filename], {cwd: filepath});
     detect.stdout.on('data', (data) => {
 
@@ -203,11 +206,7 @@ function captureImage(model, port, filepath, filename) {
         }
       }
       if (fileName) {
-        setTimeout( () => {
-          resolve({status:'ok', filePath:filepath, fileName:filename});
-        },
-        4500)
-
+        returnCode={status:'ok', filePath:filepath, fileName:filename};
       }
 
 
@@ -216,6 +215,10 @@ function captureImage(model, port, filepath, filename) {
       logger.log(`error: ${error}`);
     });
     detect.on('close', (code) => {
+      setTimeout( () => {
+        resolve(returnCode);
+      },
+      4500)
       //logger.log(`child process exited with code ${code}`);
     });
   });
