@@ -1,6 +1,6 @@
 * {
   -webkit-user-select:none;
-  cursor:none; /* Disable this when developing */
+  /*cursor:none;*/ /* Disable this when developing */
 }
 html {
   width: 100%;
@@ -124,4 +124,86 @@ button.working {
   font-family: Helvetica, sans-serif;
   display: inline;
   width: auto;
+}
+
+
+#info-frames {
+  z-index: 98;
+  position: absolute;
+  bottom:32px;
+  left:8px;
+  right:8px;
+  height:16px;
+  display: flex;
+  flex-direction: row;
+}
+.info-frame {
+  flex:1;
+  display: block;
+}
+#info-previous-frame {
+  align-items: left;
+  justify-content: flex-start;
+}
+#info-next-frame {
+  flex:1;
+  align-items: right;
+  justify-content: flex-end;
+}
+#info-next-frame .frame-info-item{
+  float: right;
+  color:rgb(255,70,70);
+  border-color: rgb(255,70,70);
+  text-align: right;
+}
+red {
+  color:rgb(255,70,70);
+}
+#info-previous-frame .frame-info-item {
+  float: left;
+  color:rgb(100,255,110);
+  border-color: rgb(100,255,110);
+}
+blue {
+  color:rgb(100,255,110);
+}
+.frame-info-item {
+  border-style: solid;
+  border-width: 0px;
+  border-bottom-width: 2px;
+  margin:0px;
+  padding:0px;
+  font-size: 14px;
+  font-weight: bold;
+  width: 64px;
+  font-family: monospace, sans-serif;;
+}
+#window-buttons {
+  position: absolute;
+  z-index:97;
+  bottom:5px;
+  left:8px;
+  right:8px;
+  height:20px;
+  display: block;
+  overflow: visible;
+}
+#window-buttons button {
+  position: relative;
+  display: inline-block;
+  float:left;
+  width:auto;
+  font-weight: normal;
+  font-size: 10px;
+  border-style: solid;
+  border-width: 1px;
+  border-color:white;;
+  border-radius: 2px;
+  margin-right:5px;
+}
+#window-buttons button.red {
+  border-color:rgb(244,0,0);
+}
+#window-buttons button.yellow {
+  border-color:rgb(244,230,0);
 }

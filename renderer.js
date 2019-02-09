@@ -10,7 +10,7 @@ const path = require('path');
 
 
 /* UI */
-var compareState = false;
+var compareState = "next";
 
 /* Important Variables */
 
@@ -56,9 +56,26 @@ window.addEventListener('load', (e) => {
     fs.writeFileSync(configFile, JSON.stringify(configuration, null, 2))
   }
 
-
   getModel(configuration, tempPath).then( (m) => {
     Component('label-model').innerHTML = "<b>Camera:</b> "+m.model+"</br> <b>Port:</b> "+m.port;
+
+    var count = getCount(configuration.outputPath);
+    if (count>0) {
+      Component('previous-frame-number').innerHTML = pad(count, 4);
+      Component('next-frame-number').innerHTML = pad(count+1, 4);
+    }
+
+    getCameraConfigOptions(m.port).then( (data) => {
+      console.log(data);
+      if (data.status==='ok') {
+        if (data.options.includes('/main/status/batterylevel')) {
+          getCameraConfig(data.port,'/main/status/batterylevel').then( (d) => {
+            console.log(d);
+            Component('label-model').innerHTML = "<b>Camera:</b> "+m.model+"</br> <b>Port:</b> "+m.port+"</br> <b>Battery:</b> "+d.info;
+          })
+        }
+      }
+    })
   })
 })
 
@@ -119,28 +136,56 @@ Component('button-capture').addEventListener('click', (e) => {
     Component('PreviousImage').src=outputFile;
 
     Component('button-capture').innerHTML='Take Picture'
-    Component('button-capture').className=''
+    Component('button-capture').className='';
+    Component('previous-frame-number').innerHTML = pad(number, 4);
+    Component('next-frame-number').innerHTML = pad(number+1, 4);
   })
 })
 
 Component('button-compare').addEventListener('click', (e) => {
-  if (compareState) {
-    /* Don't compare */
-    compareState=false;
-    Component('PreviousImageLayout').style.display = 'none';
-    Component('NextImageLayout').className="Image";
-    Component('button-compare').innerHTML="Enable Previous Image";
+  if (compareState==="next") {
+    /* Move from next to both */
+    compareState='previousnext';
 
-  } else {
-    /* Compare */
-    compareState=true;
     Component('PreviousImageLayout').style.display = 'block';
-    Component('NextImageLayout').className="Image Overlay";
-    Component('button-compare').innerHTML="Disable Previous Image";
+    Component('NextImageLayout').style.display = 'block';
 
+    Component('PreviousImageLayout').className="Image Overlay";
+    Component('NextImageLayout').className="Image Overlay";
+
+    Component('button-compare').innerHTML="<blue>Previous</blue> + <red>Next</red> Image";
+
+  } else if (compareState==="previousnext"){
+    compareState='previous';
+
+    Component('PreviousImageLayout').style.display = 'block';
+    Component('NextImageLayout').style.display = 'none';
+
+    Component('PreviousImageLayout').className="Image";
+
+    Component('button-compare').innerHTML="<blue>Previous</blue> Image";
+  } else if (compareState==="previous") {
+    /* Compare */
+    compareState='next';
+
+    Component('PreviousImageLayout').style.display = 'none';
+    Component('NextImageLayout').style.display = 'block';
+
+    Component('NextImageLayout').className="Image";
+
+    Component('button-compare').innerHTML="<red>Next</red> Image";
   }
 })
 
+Component('button-close-window').addEventListener('click', (e) => {
+  remote.getCurrentWindow().close();
+})
+Component('button-devtools').addEventListener('click', (e) => {
+  remote.getCurrentWindow().webContents.openDevTools();
+})
+Component('button-reload').addEventListener('click', (e) => {
+  window.location.reload()
+})
 /* UI Operations */
 
 /* Operations */
@@ -219,6 +264,66 @@ function captureImage(model, port, filepath, filename) {
         resolve(returnCode);
       },
       4500)
+      //logger.log(`child process exited with code ${code}`);
+    });
+  });
+}
+
+
+function getCameraConfigOptions(port) {
+  return new Promise(function(resolve, reject) {
+    var returnCode = {
+      status:'none',
+      options: [],
+      port:port
+    }
+    const detect = spawn('gphoto2', [
+        '--port',
+        port,
+        '--list-config'
+      ]
+    );
+
+    detect.stdout.on('data', (data) => {
+      var options = []
+      var options = data.toString().split('\n').filter(item => item.startsWith('/main/'))
+      returnCode.status='ok';
+      returnCode.options = options;
+    });
+    detect.stderr.on('data', (error) => {
+      logger.log(`error: ${error}`);
+    });
+    detect.on('close', (code) => {
+      resolve(returnCode);
+      //logger.log(`child process exited with code ${code}`);
+    });
+  });
+}
+function getCameraConfig(port, config) {
+  return new Promise(function(resolve, reject) {
+    var returnCode = {
+      status:'none',
+      options: []
+    }
+    const detect = spawn('gphoto2', [
+        '--port',
+        port,
+        '--get-config',
+        config
+      ]
+    );
+
+    detect.stdout.on('data', (data) => {
+      var info = null;
+      var info = data.toString().split('\n').filter(item => item.startsWith('Current:'))[0].replace('Current:', '').trim()
+      returnCode.status='ok';
+      returnCode.info = info;
+    });
+    detect.stderr.on('data', (error) => {
+      logger.log(`error: ${error}`);
+    });
+    detect.on('close', (code) => {
+      resolve(returnCode);
       //logger.log(`child process exited with code ${code}`);
     });
   });

@@ -9,6 +9,8 @@
     <!-- UI -->
 
     <div class="MainLayout">
+
+
       <div class="ImageLayout">
         <div class="Image Underlay" id="PreviousImageLayout">
           <img id="PreviousImage" src="images/PreviousPicture.png"></img>
@@ -20,21 +22,37 @@
           <!--<img src="images/mask-cinemascope.jpg"></img>-->
         </div>
         <p id="label-model" class="label">No model found</p>
+
+        <div id="info-frames">
+          <div id="info-previous-frame" class="info-frame">
+            <p class="frame-info-item" id="previous-frame-number">...</p>
+          </div>
+          <div id="info-next-frame">
+            <p class="frame-info-item" id="next-frame-number">...</p>
+          </div>
+        </div>
+        <div id="window-buttons">
+          <button id="button-close-window" type="button" name="button" class="red"><b>x</b> close window</button>
+          <button id="button-devtools" type="button" name="button" class="yellow"><b>§</b> debug</button>
+          <button id="button-reload" name="button"><b></b> reload</button>
+        </div>
       </div>
+
+
       <div class="ButtonsLayout">
         <div class="Button">
-          <button type="button" id="button-preview" onclick="getModel()" >
+          <button type="button" id="button-preview">
             Preview
           </button>
         </div>
         <div class="Button">
           <button type="button" id="button-compare" name="button1">
-            Previous Image
+            <red>Next</red> Image
           </button>
         </div>
         <div class="Button">
           <button type="button" id="button-capture" name="button1">
-            Take image
+            Take Picture
           </button>
         </div>
       </div>
